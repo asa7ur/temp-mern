@@ -4,11 +4,17 @@ import {
   validateRegisterInput,
   validateLoginInput,
 } from '../middleware/validationMiddleware.js'
+import rateLimiter from 'express-rate-limit'
 
 const router = Router()
+const apiLimiter = rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  message: { msg: 'IP rate limit exceeded, retry in 15 min' },
+})
 
-router.post('/register', validateRegisterInput, register)
-router.post('/login', validateLoginInput, login)
+router.post('/register', apiLimiter, validateRegisterInput, register)
+router.post('/login', apiLimiter, validateLoginInput, login)
 router.get('/logout', logout)
 
 export default router
